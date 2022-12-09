@@ -9,7 +9,7 @@ The entire process will be done in R.
 
 ## Goals
 There are two goals for this project:
-1. Find factors that will lead to attrition and create a model that will predict it on a test dataset(CaseStudy2CompSet No Salary (2).xlsx)(CaseStudy2CompSet No Attrition (1).csv).
+1. Find factors that will lead to attrition and create a model that will predict it on a test dataset(CaseStudy2CompSet No Attrition (1).csv).
 2. Find factors that can help us predict Monthly Income and create a linear regression model that can predict it accurately on a test dataset(CaseStudy2CompSet No Salary (2).xlsx).
 
 Both test dataset have a total of 300 observation while CaseStudy2-data.csv will serve as our train dataset.
