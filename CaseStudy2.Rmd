@@ -1,0 +1,403 @@
+---
+title: "Case Study 2"
+author: "Daniel Chang"
+date: "2022-11-19"
+output: html_document
+---
+## Import Libraries 
+Importing libraries to use for project.
+```{r, echo=FALSE}
+### Needed Packages
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(class)
+library(caret)
+library(e1071)
+library(stringr)
+library(naniar)
+library(rmarkdown)
+library(readxl)
+library(imbalance)
+library(fastDummies)
+library(psych)
+library(GGally)
+```
+
+## Read in full employee dataset
+```{r}
+### Data Imports
+employeeData = read.csv("CaseStudy2-data.csv", sep = ",")
+employee_original = employeeData # make copy of original dataset
+head(employeeData)
+```
+
+## Cleaning Dataset
+In this section , I will be checking for nulls and encoding columns with characters variables to numeric variables. 
+```{r}
+### Check for Missing Values
+sum(is.na(employeeData))
+
+# Make overtime & Attrition column binary 
+employeeData$cleanOverTime = ifelse(employeeData$OverTime=="Yes",1,0)
+employeeData$cleanAttrition = ifelse(employeeData$Attrition=="Yes",1,0)
+```
+
+## Attrition Exploratory Data Analysis(EDA)
+Some variables that should be included are Monthly Income, Overtime, Job Level and Job Role.
+```{r}
+#### Exploratory Data Analysis
+#### Attrition EDA
+employeeData %>% ggplot(aes(x=Attrition,fill=Attrition)) + 
+  geom_bar()+
+  ggtitle("Attrition Count") +
+  xlab("Attrition")+ylab("Count")
+
+### Percentage Compares for Job Role
+ggplot(employeeData, aes(x = JobRole, fill = Attrition)) +
+  geom_bar(position = "fill") +
+  scale_y_continuous(labels = scales::percent)+ 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  ggtitle("Attrition Rate By Job Role")
+
+
+### Attrition Vs. Job Satisfaction
+employeeData %>% 
+  ggplot(aes(x=JobSatisfaction,fill=Attrition))+
+  geom_bar()+
+  ggtitle("Attrition Vs. Job Satisfaction") 
+
+### Attrition Vs. MonthlyIncome
+employeeData %>% ggplot(aes(x=MonthlyIncome,fill=Attrition))+
+  geom_histogram()+
+  ggtitle("Attrition Vs. MonthlyIncome") 
+
+### Attrition Vs. DistanceFromHome
+employeeData %>% 
+  ggplot(aes(x=DistanceFromHome,fill=Attrition))+
+  geom_histogram()+
+  ggtitle("Attrition Vs. DistanceFromHome") 
+
+### Attrition Vs. MonthlyRate
+employeeData %>% ggplot(aes(x=MonthlyRate,fill=Attrition))+geom_histogram()+ggtitle("Attrition Vs. MonthlyRate") 
+
+### Attrition Vs. OverTime
+employeeData %>% 
+  ggplot(aes(x=OverTime,fill=Attrition))+
+  geom_bar(position="fill")+ggtitle("Attrition Vs. Overtime")+
+  scale_y_continuous(labels = scales::percent)
+
+### Attrition Vs. years Since last Promotion
+employeeData %>% 
+  ggplot(aes(x=YearsSinceLastPromotion,fill=Attrition))+
+  geom_bar(position="fill")+ggtitle("Attrition Vs. Years Since Last Promotion") +  
+  scale_y_continuous(labels = scales::percent)
+
+### Attrition Vs. Salary Hike - NO
+employeeData %>% 
+  ggplot(aes(x=PercentSalaryHike,fill=Attrition))+
+  geom_histogram(position="fill")+
+  ggtitle("Attrition Vs. Percent Salary Hike") 
+
+### Attrition Vs. Age
+employeeData %>% 
+  ggplot(aes(x=Age,fill=Attrition))+
+  geom_histogram()+
+  ggtitle("Attrition Vs. Age")
+
+### Attrition vs Marital Status
+employeeData %>% 
+  ggplot(aes(x=MaritalStatus,fill=Attrition))+
+  geom_bar(position="fill")+
+  ggtitle("Attrition Vs. Marital Status")
+
+### Attrition Vs. PercentSalaryHike
+employeeData %>% 
+  ggplot(aes(x=PercentSalaryHike,fill=Attrition))+
+  geom_histogram()+ggtitle("Attrition Vs. PercentSalaryHike")+
+  scale_y_continuous(labels = scales::percent)
+
+### Attrition Vs. WorkLifeBalance
+employeeData %>% 
+  ggplot(aes(x=WorkLifeBalance,fill=Attrition))+
+  geom_histogram()+ggtitle("Attrition Vs. WorkLifeBalance")+
+  scale_y_continuous(labels = scales::percent)
+
+### Attrition Vs. StockOptionLevel
+employeeData %>% 
+  ggplot(aes(x=StockOptionLevel,fill=Attrition))+
+  geom_histogram()+ggtitle("Attrition Vs. StockOptionLevel")+
+  scale_y_continuous(labels = scales::percent)
+
+### Attrition Vs. TrainingTimesLastYear
+employeeData %>% 
+  ggplot(aes(x=TrainingTimesLastYear,fill=Attrition))+
+  geom_histogram()+
+  ggtitle("Attrition Vs. TrainingTimesLastYear")+
+  scale_y_continuous(labels = scales::percent)
+
+### Attrition Vs. PerformanceRating
+employeeData %>% 
+  ggplot(aes(x=PerformanceRating,fill=Attrition))+
+  geom_histogram()+ggtitle("Attrition Vs. PerformanceRating")+
+  scale_y_continuous(labels = scales::percent)
+
+### Attrition Vs. RelationshipSatisfaction
+employeeData %>% 
+  ggplot(aes(x=RelationshipSatisfaction,fill=Attrition))+
+  geom_histogram()+ggtitle("Attrition Vs. RelationshipSatisfaction")+
+  scale_y_continuous(labels = scales::percent)
+
+### Attrition Vs. Joblevel
+employeeData %>% 
+  ggplot(aes(x=JobLevel,fill=Attrition))+
+  geom_bar()+ggtitle("Attrition Vs. Joblevel")+
+  scale_y_continuous(labels = scales::percent)
+
+### Attrition Vs. BusinessTravel
+employeeData %>% 
+  ggplot(aes(x=BusinessTravel,fill=Attrition))+
+  geom_bar()+ggtitle("Attrition Vs. BusinessTravel")+
+  scale_y_continuous(labels = scales::percent)
+
+#### Monthly Income EDA
+### Compare Incomes
+employeeData %>% group_by(Attrition) %>% summarise(compareincomes=mean(MonthlyIncome))
+
+### Job Role vs. Monthly Salary
+employeeData %>% 
+  ggplot(aes(x=JobRole,y = MonthlyIncome, fill = JobRole))+
+  geom_boxplot()+ggtitle("Monthly Income vs. Job Role")+
+  theme(axis.text.x = element_text(angle = 60, vjust = 1, hjust=1)) 
+
+ggpairs(employeeData[,c(3,30, 33:36)], aes(color = Attrition))
+
+employeeData %>% 
+  ggplot(aes(x=TotalWorkingYears,y = MonthlyIncome))+
+  geom_point()+ggtitle("Monthly Income vs. TotalWorkingYears")+
+  theme(axis.text.x = element_text(angle = 60, vjust = 1, hjust=1)) 
+
+employeeData %>% 
+  ggplot(aes(x=BusinessTravel,y = MonthlyIncome))+
+  geom_boxplot()+ggtitle("Monthly Income vs. BusinessTravel")+
+  theme(axis.text.x = element_text(angle = 60, vjust = 1, hjust=1))
+```
+
+## KNN Model
+```{r}
+
+### KNN Model
+
+## Classify
+employeeData2 = employeeData
+employeeData2$Attrition = as.factor(employeeData2$Attrition)
+employeeData2$Attrition = relevel(employeeData2$Attrition, ref = "Yes")
+# create dataset for KNN model
+model = employeeData2[,-c(1,4,5,6,8,9,10,11,12,13,14,17,19,21,23,24,28,38)]
+
+# oversample to make up for imbalance in dataset
+model = oversample(model,classAttr = "Attrition",method = "ADASYN")
+
+## ML
+set.seed(100)
+iterations = 200
+numks = 20
+splitPerc = .70
+masterAcc = matrix(nrow = iterations, ncol = numks)
+for(j in 1:iterations)
+{
+  trainIndices = sample(1:dim(model)[1],round(splitPerc * dim(model)[1]))
+  train = model[trainIndices,]
+  test = model[-trainIndices,]
+  for(i in 1:numks)
+  {
+    classifications = knn(train[,-c(2)],test[,-c(2)],train$Attrition, prob = TRUE, k = i)
+    table(classifications,test$Attrition)
+    CM = confusionMatrix(table(classifications,test$Attrition))
+    masterAcc[j,i] = CM$overall[1]
+  }
+  
+}
+MeanAcc = colMeans(masterAcc)
+plot(seq(1,numks,1),MeanAcc, type = "l")
+which.max(MeanAcc)
+max(MeanAcc)
+```
+
+## Confusion Matrix for KNN model
+```{r}
+classifications = knn(train[,-c(2)],test[,-c(2)],train$Attrition, prob = TRUE, k = 3)
+table(classifications,test$Attrition)
+CM = confusionMatrix(table(classifications,test$Attrition))
+CM
+```
+
+## Naive-Bayes Model
+```{r}
+set.seed(25)
+naive_data=employeeData
+
+naive_data$Attrition = as.factor(naive_data$Attrition)
+naive_data$Attrition = relevel(naive_data$Attrition, ref ="Yes")
+
+model2 = naive_data[,-c(1,2,4,5,7,9,10,11,13,
+                        14,21:23,25,28,37,38)]
+
+#Convert all character variables to factors
+model2 = model2 %>%
+  mutate_if(sapply(model2, is.character), as.factor)
+#Convert all character variables to integer 
+model2 = model2 %>%
+  mutate_if(sapply(model2, is.factor), as.integer)
+
+#oversample
+model2 = oversample(model2,classAttr = "Attrition",method = "ADASYN")
+
+#revert interger back to factor
+model2 = model2 %>%
+  mutate_if(sapply(model2, is.integer), as.factor)
+
+#change Attrition back to character and factor
+model2$Attrition <- (ifelse(model2$Attrition==1,"No","Yes"))
+model2$Attrition <- as.factor(model2$Attrition)
+
+model2$Attrition = as.factor(model2$Attrition)
+trainIndices = sample(1:dim(model2)[1],round(.70 * dim(model2)[1]))
+train = model2[trainIndices,]
+test = model2[-trainIndices,]
+
+classifier1 = naiveBayes(Attrition~., data =model2)
+
+pred = predict(classifier1,newdata=test)
+CM = confusionMatrix(table(test$Attrition,pred))
+
+CM
+```
+
+
+## Read in NoAttrition dataset
+```{r}
+employee_noattri = read.csv("CaseStudy2CompSet No Attrition (1).csv")
+employee_noattri
+```
+
+## Predict Attrition
+```{r}
+employee_noattri$cleanOverTime = ifelse(employee_noattri$OverTime=="Yes",1,0)
+
+attrition_pred = predict(classifier1, employee_noattri)
+attrition_pred
+```
+
+## Add attrition prediction to dataset
+```{r}
+employee_noattri$AttritionPred = attrition_pred
+employee_noattri
+```
+## Write csv file for attrition prediction
+```{r}
+filtered_noattrition = employee_noattri %>% select(ID, AttritionPred) %>% arrange(ID)
+filtered_noattrition
+
+write.csv(filtered_noattrition, "/Users/dannychang/Desktop/Case Study 2/Case2PredictionsChang Attrition.csv")
+```
+
+## Read in NoSalary dataset
+```{r}
+employee_nosalary = read_excel("CaseStudy2CompSet No Salary (2).xlsx")
+```
+
+
+## Finding Variables for Best Linear Regression Model
+We will create a linear regression model to test all of the variables to decide on which one will be selected for our final linear regression model.To incoporate all the variables, I will be creating dummy columns to make various columns binary, I can use them in this model. 
+```{r}
+employeeData3 = employeeData2
+employeeData3 = dummy_cols(employeeData3, 
+                           select_columns = c("BusinessTravel","Department",
+                                              "EducationField","Gender",
+                                              "JobRole", "MaritalStatus" ))
+
+employeeData3$JobRole_Others = ifelse(employeeData3$JobRole_Manager == 1|employeeData3$`JobRole_Research Director` == 1|
+                                        employeeData3$`JobRole_Sales Executive` == 1, 0, 1)
+employeeData3$BusinessTravel_Others = ifelse(employeeData3$`BusinessTravel_Non-Travel` == 1, 0, 1)
+
+employeeData3[,c(39:66)] = employeeData3[,c(39:66)] %>%
+  mutate_if(sapply(employeeData3[,c(39:66)], is.numeric), as.factor)
+
+lm_salarydf = employeeData3[,c(2,5,7,8,12,14,15,16,18, 20,
+                              21,25,26,27,29,30, 31,32,33,34,
+                              35,36,37, 39:64)]
+
+lmsalary_model = lm(MonthlyIncome~.,
+                    data = lm_salarydf)
+summary(lmsalary_model)
+```
+
+## Creating Linear Regression Model
+Looking at the Linear Regression model that we created above, we will want to select all of the columns where the p-value yields a significant result. We will take those values and add it to our final linear regression model to predict salary.
+```{r}
+lm_salarydf = employeeData3[,c(16, 20,21, 26, 30, 35,39:44, 53:61)] # 39-44 is Business Travel, 53-61 is Jobe Role
+
+lmsalary_model2 = lm(MonthlyIncome~., 
+                    data = lm_salarydf)
+summary(lmsalary_model2)
+
+RSS = c(crossprod(lmsalary_model2$residuals))
+MSE = RSS / length(lmsalary_model2$residuals)
+RMSE = sqrt(MSE)
+sig2 = RSS / lmsalary_model2$df.residual
+
+RMSE
+```
+
+
+## Predicting Salary
+```{r}
+# scale no salary dataset 
+#employee_nosalary$MonthlyRate=scale(employee_nosalary$MonthlyRate)
+#employee_nosalary$JobSatisfaction=scale(employee_nosalary$JobSatisfaction)
+#employee_nosalary$Age=scale(employee_nosalary$Age)
+#employee_nosalary$EnvironmentSatisfaction=scale(employee_nosalary$EnvironmentSatisfaction)
+#employee_nosalary$DailyRate=scale(employee_nosalary$DailyRate)
+#employee_nosalary$JobLevel=scale(employee_nosalary$JobLevel)
+#employee_nosalary$PercentSalaryHike=scale(employee_nosalary$PercentSalaryHike)
+
+# create dummy variables
+employee_nosalary= dummy_cols(employee_nosalary, 
+                           select_columns = c("BusinessTravel","Department",
+                                              "EducationField","Gender",
+                                              "JobRole", "MaritalStatus" ))
+
+employee_nosalary$cleanOverTime = ifelse(employee_nosalary$OverTime=="Yes",1,0)
+employee_nosalary$JobRole_Others = ifelse(employee_nosalary$JobRole_Manager == 1|
+                                            employee_nosalary$`JobRole_Research Director` ==1|
+                                            employee_nosalary$`JobRole_Sales Executive` == 1, 0, 1)
+employee_nosalary$BusinessTravel_Others = ifelse(employee_nosalary$`BusinessTravel_Non-Travel` == 1, 0, 1)
+
+# change dummy variables to factors
+employee_nosalary[,c(36:63)] = employee_nosalary[,c(36:63)] %>%
+  mutate_if(sapply(employee_nosalary[,c(36:63)], is.numeric), as.factor)
+
+# predict salary
+salary_pred = predict(lmsalary_model2, employee_nosalary)
+#sd = sd(employee_original$MonthlyIncome)
+#salary_mean = mean(employee_original$MonthlyIncome)
+#unscaled_pred = (salary_pred * sd) + salary_mean
+#unscaled_pred 
+```
+
+## Adding Column to No Salary Dataset and Exporting as .csv File
+```{r}
+#salary_pred = unlist(salary_pred)
+
+employee_nosalary$SalaryPred =salary_pred 
+head(employee_nosalary)
+
+filtered_nosalary = employee_nosalary %>% select(ID, SalaryPred) %>% arrange(ID)
+filtered_nosalary
+```
+## Create csv file with salary predictions
+```{r}
+write.csv(filtered_nosalary, "/Users/dannychang/Desktop/Case Study 2/Case2PredictionsChang Salary.csv")
+```
+
