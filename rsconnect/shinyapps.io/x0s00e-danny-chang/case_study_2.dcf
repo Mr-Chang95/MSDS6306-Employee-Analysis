@@ -1,0 +1,14 @@
+name: case_study_2
+title:
+username:
+account: x0s00e-danny-chang
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 7743138
+bundleId: 6624466
+url: https://x0s00e-danny-chang.shinyapps.io/case_study_2/
+when: 1670800529.84342
+lastSyncTime: 1670800529.84343
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: 6306 Project_Employee Analysis.pptx|Case2PredictionsChang Attrition.csv|Case2PredictionsChang Salary.csv|CaseStudy2.html|CaseStudy2.Rmd|CaseStudy2CompSet No Attrition (1).csv|CaseStudy2CompSet No Salary (2).xlsx|README.md
