@@ -4,6 +4,7 @@ author: "Daniel Chang"
 date: "2022-11-19"
 output: html_document
 ---
+# Employee Attrition and Salary Analysis and Prediction Models
 ## Import Libraries 
 Importing libraries to use for project.
 ```{r, echo=FALSE}
@@ -34,6 +35,7 @@ head(employeeData)
 
 ## Cleaning Dataset
 In this section , I will be checking for nulls and encoding columns with characters variables to numeric variables. 
+There is nothing to clean here as there are no nulls in the dataset and the data is high in integrity. 
 ```{r}
 ### Check for Missing Values
 sum(is.na(employeeData))
@@ -44,7 +46,13 @@ employeeData$cleanAttrition = ifelse(employeeData$Attrition=="Yes",1,0)
 ```
 
 ## Attrition Exploratory Data Analysis(EDA)
+First, we started of will looking at the attrition count. From our bar chart, we find that the "No" Attrition outnumbers the "Yes" by nearly 7 to 1.
+
 Some variables that should be included are Monthly Income, Overtime, Job Level and Job Role.
+
+Our Attrition vs. Monthly Income histogram shows that as the salary of an individual increases, they are less likely to quit. Next, we find that those who work overtime are more likely ot quit. A little over 25% of those who work overtime quite which makes sense since they are more prone to stress. Job Role seems to be a big factor in those who quite as well. Almost 50% of those who work as sales representative quit and about 25% of those who work in human resources do. 
+
+Furthermore, from our pair plots, we find that the length some works is somewhat correlated with the attrition rate as well. The correlation hovers between 0.59 and0.78 which a strong and positive correlation, not very strong. However, it is enough to make an impact.   
 ```{r}
 #### Exploratory Data Analysis
 #### Attrition EDA
@@ -185,13 +193,12 @@ employeeData %>%
 
 ## KNN Model
 ```{r}
-
 ### KNN Model
 
 ## Classify
 employeeData2 = employeeData
 employeeData2$Attrition = as.factor(employeeData2$Attrition)
-employeeData2$Attrition = relevel(employeeData2$Attrition, ref = "Yes")
+#employeeData2$Attrition = relevel(employeeData2$Attrition, ref = "Yes")
 # create dataset for KNN model
 model = employeeData2[,-c(1,4,5,6,8,9,10,11,12,13,14,17,19,21,23,24,28,38)]
 
@@ -225,6 +232,7 @@ max(MeanAcc)
 ```
 
 ## Confusion Matrix for KNN model
+As we build and analyze our KNN model, we find that KNN is not the best model to use. Our accuracy is abysmal. Our sensitivity is only slightly better at 0.7446 while is worse at 0.6119. As a result, we will move on to a different model.   
 ```{r}
 classifications = knn(train[,-c(2)],test[,-c(2)],train$Attrition, prob = TRUE, k = 3)
 table(classifications,test$Attrition)
@@ -233,16 +241,16 @@ CM
 ```
 
 ## Naive-Bayes Model
+Now, want to use Naive-bayes to build our model. This model yielded us much better results with an accuracy of 0.8884, a sensitivity of 0.9019 and specificity 0.8750. As a result, we find this model to be quite accurate. Therefore, the Naive-bayes model that we've built to predict attriton on the test dataset.   
 ```{r}
 set.seed(25)
 naive_data=employeeData
 
 naive_data$Attrition = as.factor(naive_data$Attrition)
-naive_data$Attrition = relevel(naive_data$Attrition, ref ="Yes")
+#naive_data$Attrition = relevel(naive_data$Attrition, ref ="Yes")
 
 model2 = naive_data[,-c(1,2,4,5,7,9,10,11,13,
                         14,21:23,25,28,37,38)]
-
 #Convert all character variables to factors
 model2 = model2 %>%
   mutate_if(sapply(model2, is.character), as.factor)
@@ -282,8 +290,19 @@ employee_noattri
 ```
 
 ## Predict Attrition
+In this code block, we will use our Naive-Bayes model to predict attrition and store it in a variable. 
 ```{r}
+# Convert overtime to binary 
 employee_noattri$cleanOverTime = ifelse(employee_noattri$OverTime=="Yes",1,0)
+
+employee_noattri = employee_noattri %>%
+  mutate_if(sapply(employee_noattri, is.character), as.factor)
+#Convert all character variables to integer 
+employee_noattri = employee_noattri %>%
+  mutate_if(sapply(employee_noattri, is.factor), as.integer)
+employee_noattri = employee_noattri %>%
+  mutate_if(sapply(employee_noattri, is.integer), as.factor)
+
 
 attrition_pred = predict(classifier1, employee_noattri)
 attrition_pred
@@ -294,9 +313,11 @@ attrition_pred
 employee_noattri$AttritionPred = attrition_pred
 employee_noattri
 ```
+
 ## Write csv file for attrition prediction
 ```{r}
-filtered_noattrition = employee_noattri %>% select(ID, AttritionPred) %>% arrange(ID)
+filtered_noattrition = employee_noattri %>% 
+  select(ID, AttritionPred) %>% arrange(ID)
 filtered_noattrition
 
 write.csv(filtered_noattrition, "/Users/dannychang/Desktop/Case Study 2/Case2PredictionsChang Attrition.csv")
@@ -334,7 +355,7 @@ summary(lmsalary_model)
 ```
 
 ## Creating Linear Regression Model
-Looking at the Linear Regression model that we created above, we will want to select all of the columns where the p-value yields a significant result. We will take those values and add it to our final linear regression model to predict salary.
+Looking at the Linear Regression model that we created above, we will want to select all of the columns where the p-value yields a significant result. We will take those values and add it to our final linear regression model to predict salary. Please note that column 39-44 indicates all the Business travel levels while 53-61 refers to all the Job Role.
 ```{r}
 lm_salarydf = employeeData3[,c(16, 20,21, 26, 30, 35,39:44, 53:61)] # 39-44 is Business Travel, 53-61 is Jobe Role
 
@@ -353,15 +374,6 @@ RMSE
 
 ## Predicting Salary
 ```{r}
-# scale no salary dataset 
-#employee_nosalary$MonthlyRate=scale(employee_nosalary$MonthlyRate)
-#employee_nosalary$JobSatisfaction=scale(employee_nosalary$JobSatisfaction)
-#employee_nosalary$Age=scale(employee_nosalary$Age)
-#employee_nosalary$EnvironmentSatisfaction=scale(employee_nosalary$EnvironmentSatisfaction)
-#employee_nosalary$DailyRate=scale(employee_nosalary$DailyRate)
-#employee_nosalary$JobLevel=scale(employee_nosalary$JobLevel)
-#employee_nosalary$PercentSalaryHike=scale(employee_nosalary$PercentSalaryHike)
-
 # create dummy variables
 employee_nosalary= dummy_cols(employee_nosalary, 
                            select_columns = c("BusinessTravel","Department",
@@ -380,10 +392,6 @@ employee_nosalary[,c(36:63)] = employee_nosalary[,c(36:63)] %>%
 
 # predict salary
 salary_pred = predict(lmsalary_model2, employee_nosalary)
-#sd = sd(employee_original$MonthlyIncome)
-#salary_mean = mean(employee_original$MonthlyIncome)
-#unscaled_pred = (salary_pred * sd) + salary_mean
-#unscaled_pred 
 ```
 
 ## Adding Column to No Salary Dataset and Exporting as .csv File
