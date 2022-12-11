@@ -30,7 +30,7 @@ library(psych) <br>
 library(GGally)
 
 # Google Drive presentation
-Please visit this [link](https://drive.google.com/file/d/1P42-c6FTE2aJwgsowFIvTpASlgx8TNn5/view?usp=sharing) for my presentation on this project.
+Please visit this [link](https://drive.google.com/file/d/1srzTIJI2Ow2vudsjGM2-xGMUC6uKXKr_/view?usp=sharing) for my presentation on this project.
 
 ## Licensing and Acknowledgements
 This was done as a project for Data Science 6306 at Southern Methodist University,
