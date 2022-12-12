@@ -33,5 +33,8 @@ library(GGally)
 # Google Drive presentation
 Please visit this [link](https://drive.google.com/file/d/1srzTIJI2Ow2vudsjGM2-xGMUC6uKXKr_/view?usp=sharing) for my presentation on this project.
 
+# RShiny
+Please visit this [link](https://x0s00e-danny-chang.shinyapps.io/case_study_2/?_ga=2.103113856.1268003529.1670802137-241624307.1669589829) for my RShiny app.
+
 ## Licensing and Acknowledgements
 This was done as a project for Data Science 6306 at Southern Methodist University,
