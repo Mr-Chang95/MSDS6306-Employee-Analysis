@@ -1,4 +1,5 @@
 # DS 6306 - Case Study 2(Employee Predictions)
+![DS 6306 - Case Study 2(Employee Predictions)](https://user-images.githubusercontent.com/92649864/206943562-84ea4138-c1aa-425d-9cf8-63d30578318c.jpg)
 
 ## Project Description
 DDSAnalytics is an analytics company that specializes in talent management solutions for Fortune 100 companies. Talent management is defined as the iterative process of developing and retaining employees. It may include workforce planning, employee training programs, identifying high-potential employees and reducing/preventing voluntary employee turnover (attrition). To gain a competitive edge over its competition, DDSAnalytics is planning to leverage data science for talent management. The executive leadership has identified predicting employee turnover as its first application of data science for talent management.
