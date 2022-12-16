@@ -7,7 +7,7 @@ output: html_document
 # Employee Attrition and Salary Analysis and Prediction Models
 ## Import Libraries 
 Importing libraries to use for project.
-```{r, echo=FALSE}
+```{r, include=FALSE}
 ### Needed Packages
 library(dplyr)
 library(tidyr)
@@ -287,7 +287,7 @@ CM
 ## Read in NoAttrition dataset
 ```{r}
 employee_noattri = read.csv("CaseStudy2CompSet No Attrition (1).csv")
-employee_noattri
+#employee_noattri
 ```
 
 ## Predict Attrition
@@ -312,14 +312,14 @@ attrition_pred
 ## Add attrition prediction to dataset
 ```{r}
 employee_noattri$AttritionPred = attrition_pred
-employee_noattri
+#employee_noattri
 ```
 
 ## Write csv file for attrition prediction
 ```{r}
 filtered_noattrition = employee_noattri %>% 
   select(ID, AttritionPred) %>% arrange(ID)
-filtered_noattrition
+head(filtered_noattrition)
 
 write.csv(filtered_noattrition, "Case2PredictionsChang Attrition.csv")
 ```
@@ -403,7 +403,7 @@ employee_nosalary$SalaryPred =salary_pred
 head(employee_nosalary)
 
 filtered_nosalary = employee_nosalary %>% select(ID, SalaryPred) %>% arrange(ID)
-filtered_nosalary
+head(filtered_nosalary)
 ```
 ## Create csv file with salary predictions
 ```{r}

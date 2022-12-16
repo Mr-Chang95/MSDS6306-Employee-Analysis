@@ -58,7 +58,9 @@ ui = fluidPage(
       ),
       checkboxGroupInput("checkGroup", 
                          label = h3("Prediction Models"), 
-                         choices = list("NB Model (Best Model)" = 1),
+                         choices = list("NB Model (Best Model)" = 1, 
+                                        "KNN Model" = 2, 
+                                        "Linear Regression" = 3),
                          selected = 1),
       
       
